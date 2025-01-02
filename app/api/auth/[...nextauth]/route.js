@@ -23,6 +23,9 @@ const handler = NextAuth({
       try {
         await connectToDB();
 
+        // Debug: Log profile data to inspect its structure
+        console.log("Google Profile Data:", profile);
+
         // check if user already exists
         const userExists = await User.findOne({ email: profile.email });
 
@@ -31,17 +34,17 @@ const handler = NextAuth({
           await User.create({
             email: profile.email,
             username: profile.name.replace(" ", "").toLowerCase(),
-            image: profile.picture,
+            image: profile.picture || "https://default-image.url/default.png", // Fallback image
           });
         }
 
-        return true
+        return true;
       } catch (error) {
         console.log("Error checking if user exists: ", error.message);
-        return false
+        return false;
       }
     },
   }
-})
+});
 
-export { handler as GET, handler as POST }
+export { handler as GET, handler as POST };
