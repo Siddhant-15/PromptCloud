@@ -5,26 +5,29 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import Form from "@components/Form";
 
+export const dynamic = 'force-dynamic'; // Add this line to force dynamic rendering
+
 const UpdatePrompt = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const promptId = searchParams.get("id");
 
-  const [post, setPost] = useState({ prompt: "", tag: "", });
+  const [post, setPost] = useState({ prompt: "", tag: "" });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getPromptDetails = async () => {
+      if (!promptId) return;
       const response = await fetch(`/api/prompt/${promptId}`);
+      if (!response.ok) return; // Handle cases where the fetch fails
       const data = await response.json();
-
       setPost({
         prompt: data.prompt,
         tag: data.tag,
       });
     };
 
-    if (promptId) getPromptDetails();
+    getPromptDetails();
   }, [promptId]);
 
   const updatePrompt = async (e) => {
@@ -46,7 +49,7 @@ const UpdatePrompt = () => {
         router.push("/");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Failed to update the prompt:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,7 +57,7 @@ const UpdatePrompt = () => {
 
   return (
     <Form
-      type='Edit'
+      type="Edit"
       post={post}
       setPost={setPost}
       submitting={submitting}
