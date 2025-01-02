@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Form from "@components/Form";
-
-export const dynamic = 'force-dynamic'; // Add this line to force dynamic rendering
 
 const UpdatePrompt = () => {
   const router = useRouter();
@@ -18,13 +16,15 @@ const UpdatePrompt = () => {
   useEffect(() => {
     const getPromptDetails = async () => {
       if (!promptId) return;
+
       const response = await fetch(`/api/prompt/${promptId}`);
-      if (!response.ok) return; // Handle cases where the fetch fails
-      const data = await response.json();
-      setPost({
-        prompt: data.prompt,
-        tag: data.tag,
-      });
+      if (response.ok) {
+        const data = await response.json();
+        setPost({
+          prompt: data.prompt,
+          tag: data.tag,
+        });
+      }
     };
 
     getPromptDetails();
@@ -66,4 +66,10 @@ const UpdatePrompt = () => {
   );
 };
 
-export default UpdatePrompt;
+const UpdatePromptPage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <UpdatePrompt />
+  </Suspense>
+);
+
+export default UpdatePromptPage;
